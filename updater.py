@@ -36,18 +36,30 @@ def auth():
 def download_images():
     reddit_scraper = RedditScraper("C:/Users/Sam/Downloads/reddit_credentials.json")
     images = reddit_scraper.get_top_image_submissions(json.load("subreddits.json"))
+    img_files = []
 
     for image in images:
         res = requests.get(image["media_url"])
         filename = "".join(
             c
-            for c in image["submission"]["id"]
+            for c in image["submission"].title
             if c not in ('"', "\\", "/", ":", "*", "?", "<", ">", "|")
         )
         ext = mimetypes.guess_extension(res.headers["content-type"])
+        filepath = os.path.join("downloaded_images", filename + ext)
+        img_files.append(
+            {
+                "path": filepath,
+                "filename": filename,
+                "title": image["submission"].title,
+                "source": image["submission"].subreddit_name_prefixed,
+            }
+        )
 
-        with open(os.path.join("downloaded_images", filename + ext), "wb") as img_file:
+        with open(filepath, "wb") as img_file:
             img_file.write()
+
+    return img_files
 
 
 def build_service(creds):
@@ -83,39 +95,38 @@ def clear_photos(service, album_id):
     ).execute()
 
 
-def upload_photos(creds, dir):
-    upload_tokens = []
-    _, _, filepaths = next(os.walk(dir))
-
-    for filepath in filepaths:
-        filename = os.path.basename(filepath)
+def upload_photos(creds, img_files):
+    # Caution: Deletes each photo as it is uploaded
+    for img in img_files:
         url = "https://photoslibrary.googleapis.com/v1/uploads"
         authorization = "Bearer " + creds.token
 
         headers = {
             "Authorization": authorization,
             "Content-type": "application/octet-stream",
-            "X-Goog-Upload-File-Name": filename,
+            "X-Goog-Upload-File-Name": img["title"],
             "X-Goog-Upload-Protocol": "raw",
         }
 
-        with open(os.path.join(dir, filepath), "rb") as image_file:
-            res = requests.post(url, headers=headers, data=image_file)
-        upload_tokens.append(res.text)
+        with open(os.path.join(dir, img["filepath"]), "rb") as img_file:
+            res = requests.post(url, headers=headers, data=img_file)
+        assert res.status_code == 200
+        img["upload_token"] = res.text
+        os.remove(img["filepath"])
 
-    return upload_tokens
+    return img_files
 
 
-def add_photos_to_album(service, album_id, upload_tokens):
+def add_photos_to_album(service, album_id, img_files):
     service.mediaItems().batchCreate(
         body={
             "albumId": album_id,
             "newMediaItems": [
                 {
-                    "simpleMediaItem": {"uploadToken": upload_token},
-                    "description": "Chromecast Ambient Updater automatic upload",
+                    "simpleMediaItem": {"uploadToken": img["upload_token"]},
+                    "description": f"From {img['source']}",
                 }
-                for upload_token in upload_tokens
+                for img in img_files
             ],
         }
     ).execute()
@@ -124,9 +135,10 @@ def add_photos_to_album(service, album_id, upload_tokens):
 def main():
     creds = auth()
     service = build_service(creds)
+    img_files = download_images()
     clear_photos(service, ALBUM_ID)
-    upload_tokens = upload_photos(creds, "C:/Users/Sam/Pictures/test_uploads")
-    add_photos_to_album(service, ALBUM_ID, upload_tokens)
+    img_files = upload_photos(creds, img_files)
+    add_photos_to_album(service, ALBUM_ID, img_files)
 
 
 if __name__ == "__main__":
