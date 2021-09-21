@@ -1,6 +1,7 @@
 import requests
 import praw
 import json
+import mimetypes
 
 
 class RedditScraper:
@@ -19,7 +20,10 @@ class RedditScraper:
             except AttributeError:
                 try:
                     if submission.is_gallery:
-                        for item in list(w.media_metadata.values())[0]["p"]:
-                            yield {"submission": submission, "media_url": item["u"]}
+                        for media_id in submission.media_metadata:
+                            yield {
+                                "submission": submission,
+                                "media_url": submission[media_id]["s"]["u"],
+                            }
                 except AttributeError:
                     pass
