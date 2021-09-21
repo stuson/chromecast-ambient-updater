@@ -1,9 +1,12 @@
 import os
+import requests
+import json
+import mimetypes
 from googleapiclient import discovery
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-import requests
+from reddit_scraper import RedditScraper
 
 SCOPES = ("https://www.googleapis.com/auth/photoslibrary",)
 ALBUM_ID = (
@@ -28,6 +31,23 @@ def auth():
             token.write(creds.to_json())
 
     return creds
+
+
+def download_images():
+    reddit_scraper = RedditScraper("C:/Users/Sam/Downloads/reddit_credentials.json")
+    images = reddit_scraper.get_top_image_submissions(json.load("subreddits.json"))
+
+    for image in images:
+        res = requests.get(image["media_url"])
+        filename = "".join(
+            c
+            for c in image["submission"]["id"]
+            if c not in ('"', "\\", "/", ":", "*", "?", "<", ">", "|")
+        )
+        ext = mimetypes.guess_extension(res.headers["content-type"])
+
+        with open(os.path.join("downloaded_images", filename + ext), "wb") as img_file:
+            img_file.write()
 
 
 def build_service(creds):
