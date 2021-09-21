@@ -37,7 +37,30 @@ def build_service(creds):
 
 
 def clear_photos(service, album_id):
-    items = service.albums().list(body={"albumId": album_id})
+    ids = []
+    page_token = None
+
+    while True:
+        res = (
+            service.mediaItems()
+            .search(body={"albumId": album_id, "pageToken": page_token})
+            .execute()
+        )
+
+        try:
+            ids.extend(item["id"] for item in res["mediaItems"])
+        except KeyError:
+            return
+
+        try:
+            page_token = res["nextPageToken"]
+        except KeyError:
+            break
+
+    service.albums().batchRemoveMediaItems(
+        albumId=album_id,
+        body={"mediaItemIds": ids},
+    ).execute()
 
 
 def upload_photos(creds, dir):
@@ -81,6 +104,7 @@ def add_photos_to_album(service, album_id, upload_tokens):
 def main():
     creds = auth()
     service = build_service(creds)
+    clear_photos(service, ALBUM_ID)
     upload_tokens = upload_photos(creds, "C:/Users/Sam/Pictures/test_uploads")
     add_photos_to_album(service, ALBUM_ID, upload_tokens)
 
