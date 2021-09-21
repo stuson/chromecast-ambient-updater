@@ -1,3 +1,5 @@
 token.json
 *.ipynb
 .vscode
+downloaded_images
+subreddits.json
