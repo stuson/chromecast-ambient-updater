@@ -35,7 +35,8 @@ def auth():
 
 def download_images():
     reddit_scraper = RedditScraper("C:/Users/Sam/Downloads/reddit_credentials.json")
-    images = reddit_scraper.get_top_image_submissions(json.load("subreddits.json"))
+    with open("subreddits.json") as subreddits_file:
+        images = reddit_scraper.get_top_image_submissions(json.load(subreddits_file))
     img_files = []
 
     for image in images:
@@ -46,7 +47,12 @@ def download_images():
             if c not in ('"', "\\", "/", ":", "*", "?", "<", ">", "|")
         )
         ext = mimetypes.guess_extension(res.headers["content-type"])
-        filepath = os.path.join("downloaded_images", filename + ext)
+
+        try:
+            filepath = os.path.join("downloaded_images", filename + ext)
+        except TypeError:
+            continue
+
         img_files.append(
             {
                 "path": filepath,
@@ -57,7 +63,7 @@ def download_images():
         )
 
         with open(filepath, "wb") as img_file:
-            img_file.write()
+            img_file.write(res.content)
 
     return img_files
 
@@ -108,11 +114,11 @@ def upload_photos(creds, img_files):
             "X-Goog-Upload-Protocol": "raw",
         }
 
-        with open(os.path.join(dir, img["filepath"]), "rb") as img_file:
+        with open(img["path"], "rb") as img_file:
             res = requests.post(url, headers=headers, data=img_file)
         assert res.status_code == 200
         img["upload_token"] = res.text
-        os.remove(img["filepath"])
+        os.remove(img["path"])
 
     return img_files
 
