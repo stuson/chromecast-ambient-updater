@@ -36,7 +36,9 @@ def auth():
 def download_images():
     reddit_scraper = RedditScraper("C:/Users/Sam/Downloads/reddit_credentials.json")
     with open("subreddits.json") as subreddits_file:
-        images = reddit_scraper.get_top_image_submissions(json.load(subreddits_file))
+        images = reddit_scraper.get_top_image_submissions(
+            json.load(subreddits_file), limit=100
+        )
     img_files = []
 
     for image in images:

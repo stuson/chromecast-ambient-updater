@@ -11,8 +11,10 @@ class RedditScraper:
 
         self.reddit = praw.Reddit(**creds)
 
-    def get_top_image_submissions(self, subreddits, time_filter="week"):
-        submissions = self.reddit.subreddit("+".join(subreddits)).top(time_filter)
+    def get_top_image_submissions(self, subreddits, time_filter="week", **kwargs):
+        submissions = self.reddit.subreddit("+".join(subreddits)).top(
+            time_filter, **kwargs
+        )
         for submission in submissions:
             try:
                 if submission.post_hint == "image":
