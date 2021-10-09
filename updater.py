@@ -54,7 +54,7 @@ def download_images():
                 c
                 for c in image["submission"].title
                 if c not in ('"', "\\", "/", ":", "*", "?", "<", ">", "|")
-            )
+            )[:50]
             ext = mimetypes.guess_extension(res.headers["content-type"])
 
             try:
