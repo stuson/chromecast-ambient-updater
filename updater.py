@@ -42,7 +42,14 @@ def download_images():
     img_files = []
 
     for image in images:
-        res = requests.get(image["media_url"])
+
+        with requests.get(image["media_url"], stream=True) as res:
+            try:
+                if int(res.headers["Content-Length"]) > 52428800:  # Max 50MB
+                    continue
+            except KeyError:
+                continue
+
         filename = "".join(
             c
             for c in image["submission"].title
