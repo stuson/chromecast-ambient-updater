@@ -47,24 +47,23 @@ def download_images():
             try:
                 if int(res.headers["Content-Length"]) > 52428800:  # Max 50MB
                     continue
-
-                with open(filepath, "wb") as img_file:
-                    img_file.write(res.content)
-
             except KeyError:
                 continue
 
-        filename = "".join(
-            c
-            for c in image["submission"].title
-            if c not in ('"', "\\", "/", ":", "*", "?", "<", ">", "|")
-        )
-        ext = mimetypes.guess_extension(res.headers["content-type"])
+            filename = "".join(
+                c
+                for c in image["submission"].title
+                if c not in ('"', "\\", "/", ":", "*", "?", "<", ">", "|")
+            )
+            ext = mimetypes.guess_extension(res.headers["content-type"])
 
-        try:
-            filepath = os.path.join("downloaded_images", filename + ext)
-        except TypeError:
-            continue
+            try:
+                filepath = os.path.join("downloaded_images", filename + ext)
+            except TypeError:
+                continue
+
+            with open(filepath, "wb") as img_file:
+                img_file.write(res.content)
 
         img_files.append(
             {
