@@ -47,6 +47,10 @@ def download_images():
             try:
                 if int(res.headers["Content-Length"]) > 52428800:  # Max 50MB
                     continue
+
+                with open(filepath, "wb") as img_file:
+                    img_file.write(res.content)
+
             except KeyError:
                 continue
 
@@ -70,9 +74,6 @@ def download_images():
                 "source": image["submission"].subreddit_name_prefixed,
             }
         )
-
-        with open(filepath, "wb") as img_file:
-            img_file.write(res.content)
 
     return img_files
 
