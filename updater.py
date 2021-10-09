@@ -37,7 +37,7 @@ def download_images():
     reddit_scraper = RedditScraper("C:/Users/Sam/Downloads/reddit_credentials.json")
     with open("subreddits.json") as subreddits_file:
         images = reddit_scraper.get_top_image_submissions(
-            json.load(subreddits_file), limit=100
+            json.load(subreddits_file), limit=40
         )
     img_files = []
 
@@ -112,7 +112,7 @@ def upload_photos(creds, img_files):
         headers = {
             "Authorization": authorization,
             "Content-type": "application/octet-stream",
-            "X-Goog-Upload-File-Name": img["title"],
+            "X-Goog-Upload-File-Name": img["title"].encode("utf-8"),
             "X-Goog-Upload-Protocol": "raw",
         }
 
