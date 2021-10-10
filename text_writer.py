@@ -42,8 +42,8 @@ def draw_text(image, title, subtitle):
     shadow_draw = ImageDraw.Draw(shadow_layer)
     text_draw = ImageDraw.Draw(text_layer)
 
-    header = ImageFont.truetype("resources/roboto/Roboto-Light.ttf", size=90)
-    subheader = ImageFont.truetype("resources/roboto/Roboto-Regular.ttf", size=50)
+    header = ImageFont.truetype("resources/roboto/Roboto-Light.ttf", size=40)
+    subheader = ImageFont.truetype("resources/roboto/Roboto-Regular.ttf", size=18)
 
     w, h = background_layer.size
     margin_left = 80
