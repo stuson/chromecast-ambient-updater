@@ -49,7 +49,7 @@ def draw_text(image, title, subtitle):
     margin_left = 80
     margin_bottom = 80
     margin_right = w / 6
-    margin_between = 80
+    margin_between = 20
 
     header_w, header_h = text_draw.textsize(title, header)
     subheader_w, subheader_h = text_draw.textsize(subtitle, subheader)
