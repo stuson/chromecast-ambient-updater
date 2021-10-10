@@ -52,7 +52,7 @@ def download_images():
 
             filename = "".join(
                 c
-                for c in image["submission"].title
+                for c in image["title"]
                 if c not in ('"', "\\", "/", ":", "*", "?", "<", ">", "|")
             )[:50]
             ext = mimetypes.guess_extension(res.headers["content-type"])
@@ -69,7 +69,7 @@ def download_images():
             {
                 "path": filepath,
                 "filename": filename,
-                "title": image["submission"].title,
+                "title": image["title"],
                 "source": image["submission"].subreddit_name_prefixed,
             }
         )

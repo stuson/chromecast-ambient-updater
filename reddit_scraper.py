@@ -18,16 +18,23 @@ class RedditScraper:
         for submission in submissions:
             try:
                 if submission.post_hint == "image":
-                    yield {"submission": submission, "media_url": submission.url}
+                    yield {
+                        "submission": submission,
+                        "media_url": submission.url,
+                        "title": submission.title,
+                    }
             except AttributeError:
                 try:
                     if submission.is_gallery:
+                        i = 0
                         for media_id in submission.media_metadata:
+                            i += 1
                             yield {
                                 "submission": submission,
                                 "media_url": submission.media_metadata[media_id]["s"][
                                     "u"
                                 ],
+                                "title": submission.title + f" [Gallery Image {i}]",
                             }
                 except AttributeError:
                     pass
