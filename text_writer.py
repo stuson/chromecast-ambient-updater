@@ -35,7 +35,7 @@ def resize_image(image):
 
 
 def draw_text(image, title, subtitle):
-    background_layer = Image.open(image).convert("RGBA")
+    background_layer = image.convert("RGBA")
     shadow_layer = Image.new("RGBA", background_layer.size)
     text_layer = Image.new("RGBA", background_layer.size)
 
