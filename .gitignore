@@ -1,6 +1,6 @@
 token.json
 *.ipynb
 .vscode
-downloaded_images
+downloaded_images/*
 subreddits.json
 __pycache__

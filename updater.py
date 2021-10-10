@@ -7,6 +7,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from reddit_scraper import RedditScraper
+from text_writer import add_text
 
 SCOPES = ("https://www.googleapis.com/auth/photoslibrary",)
 ALBUM_ID = (
@@ -73,6 +74,11 @@ def download_images():
     return img_files
 
 
+def add_image_text(img_files):
+    for img in img_files:
+        add_text(img["path"], img["title"], "Source: " + img["source"])
+
+
 def build_service(creds):
     return discovery.build(
         "photoslibrary", "v1", credentials=creds, static_discovery=False
@@ -131,18 +137,18 @@ def upload_photos(creds, img_files):
 def add_photos_to_album(service, album_id, img_files):
     i = 0
     while i < len(img_files):
-    service.mediaItems().batchCreate(
-        body={
-            "albumId": album_id,
-            "newMediaItems": [
-                {
-                    "simpleMediaItem": {"uploadToken": img["upload_token"]},
-                    "description": f"From {img['source']}",
-                }
+        service.mediaItems().batchCreate(
+            body={
+                "albumId": album_id,
+                "newMediaItems": [
+                    {
+                        "simpleMediaItem": {"uploadToken": img["upload_token"]},
+                        "description": f"From {img['source']}",
+                    }
                     for img in img_files[i : i + 50]
-            ],
-        }
-    ).execute()
+                ],
+            }
+        ).execute()
         i += 50
 
 
