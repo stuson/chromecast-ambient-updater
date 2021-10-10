@@ -22,6 +22,7 @@ class RedditScraper:
                         "submission": submission,
                         "media_url": submission.url,
                         "title": submission.title,
+                        "id": submission.id,
                     }
             except AttributeError:
                 try:
@@ -35,6 +36,7 @@ class RedditScraper:
                                     "u"
                                 ],
                                 "title": submission.title + f" [Gallery Image {i}]",
+                                "id": media_id,
                             }
                 except AttributeError:
                     pass
