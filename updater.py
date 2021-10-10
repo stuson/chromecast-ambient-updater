@@ -86,18 +86,17 @@ def build_service(creds):
 
 
 def clear_photos(service, album_id):
-    ids = []
     page_token = None
 
     while True:
         res = (
             service.mediaItems()
-            .search(body={"albumId": album_id, "pageToken": page_token})
+            .search(body={"albumId": album_id, "pageSize": 50, "pageToken": page_token})
             .execute()
         )
 
         try:
-            ids.extend(item["id"] for item in res["mediaItems"])
+            ids = [item["id"] for item in res["mediaItems"]]
         except KeyError:
             return
 
@@ -106,10 +105,10 @@ def clear_photos(service, album_id):
         except KeyError:
             break
 
-    service.albums().batchRemoveMediaItems(
-        albumId=album_id,
-        body={"mediaItemIds": ids},
-    ).execute()
+        service.albums().batchRemoveMediaItems(
+            albumId=album_id,
+            body={"mediaItemIds": ids},
+        ).execute()
 
 
 def upload_photos(creds, img_files):
