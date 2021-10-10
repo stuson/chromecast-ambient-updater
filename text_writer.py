@@ -3,7 +3,39 @@ import textwrap
 
 
 def add_text(image_path, title, subtitle=""):
-    background_layer = Image.open(image_path).convert("RGBA")
+    image = Image.open(image_path)
+    image = resize_image(image)
+    image = draw_text(image, title, subtitle)
+
+    try:
+        image.save(image_path)
+    except OSError:
+        image.convert("RGB").save(image_path)
+
+
+def resize_image(image):
+    w, h = image.size
+    ratio = w / h
+    max_w = 1920
+    max_h = 1080
+
+    if ratio > max_w / max_h:  # Match width
+        new_h = 1920 / ratio
+        image = image.resize((1920, int(new_h)))
+    else:  # Match height
+        new_w = 1080 * ratio
+        image = image.resize((int(new_w), 1080))
+
+    w, h = image.size
+
+    bg = Image.new("RGB", (1920, 1080), (0, 0, 0))
+    bg.paste(image, (960 - w // 2, 540 - h // 2))
+
+    return bg
+
+
+def draw_text(image, title, subtitle):
+    background_layer = Image.open(image).convert("RGBA")
     shadow_layer = Image.new("RGBA", background_layer.size)
     text_layer = Image.new("RGBA", background_layer.size)
 
@@ -53,7 +85,4 @@ def add_text(image_path, title, subtitle=""):
     composite = Image.alpha_composite(background_layer, shadow_layer)
     composite = Image.alpha_composite(composite, text_layer)
 
-    try:
-        composite.save(image_path)
-    except OSError:
-        composite.convert("RGB").save(image_path)
+    return composite
