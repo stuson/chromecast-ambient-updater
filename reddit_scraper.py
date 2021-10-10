@@ -25,7 +25,9 @@ class RedditScraper:
                         for media_id in submission.media_metadata:
                             yield {
                                 "submission": submission,
-                                "media_url": submission[media_id]["s"]["u"],
+                                "media_url": submission.media_metadata[media_id]["s"][
+                                    "u"
+                                ],
                             }
                 except AttributeError:
                     pass
