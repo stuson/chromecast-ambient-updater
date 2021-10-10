@@ -129,6 +129,8 @@ def upload_photos(creds, img_files):
 
 
 def add_photos_to_album(service, album_id, img_files):
+    i = 0
+    while i < len(img_files):
     service.mediaItems().batchCreate(
         body={
             "albumId": album_id,
@@ -137,16 +139,18 @@ def add_photos_to_album(service, album_id, img_files):
                     "simpleMediaItem": {"uploadToken": img["upload_token"]},
                     "description": f"From {img['source']}",
                 }
-                for img in img_files
+                    for img in img_files[i : i + 50]
             ],
         }
     ).execute()
+        i += 50
 
 
 def main():
     creds = auth()
     service = build_service(creds)
     img_files = download_images()
+    add_image_text(img_files)
     clear_photos(service, ALBUM_ID)
     img_files = upload_photos(creds, img_files)
     add_photos_to_album(service, ALBUM_ID, img_files)
