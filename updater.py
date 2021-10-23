@@ -38,7 +38,7 @@ def download_images():
     reddit_scraper = RedditScraper("C:/Users/Sam/Downloads/reddit_credentials.json")
     with open("subreddits.json") as subreddits_file:
         images = reddit_scraper.get_top_image_submissions(
-            json.load(subreddits_file), limit=80
+            json.load(subreddits_file), limit=200
         )
     img_files = []
 
